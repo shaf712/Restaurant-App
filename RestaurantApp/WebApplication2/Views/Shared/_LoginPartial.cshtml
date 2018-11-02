@@ -1,0 +1,77 @@
+﻿@using Microsoft.AspNet.Identity
+@using WebApplication2.Extensions
+@using System.Globalization 
+@if (Request.IsAuthenticated)
+{
+    using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+    @Html.AntiForgeryToken()
+
+		var isVIP = User.Identity.GetVIPStatus();
+		var balance = User.Identity.GetBalance();
+		var warnings = User.Identity.GetWarningCount(); 
+		var isVVIP = User.Identity.GetVVIPStatus();
+
+    <ul class="nav navbar-nav navbar-right">
+		@if(isVVIP == "1")
+		{
+		<li><p class="balance" style="margin-top: 15px; margin-right: 10px; font-weight: bolder;">10% TOTAL DISCOUNT</p></li>
+		}
+		@if(Convert.ToInt32(warnings) > 0)
+		{
+			<li><p class="balance" style="margin-top: 15px; margin-right: 10px; font-weight: bolder;">(@warnings warning count)</p></li>
+		}
+		@if(isVIP == "true" && isVVIP == "0")
+		{
+			<li><p class="vip">VIP</p></li>
+		}
+		else if(isVVIP == "1")
+		{
+		<li><p class="vip">MVP</p></li>
+		}
+
+		else
+		{
+			<li><p class="registered">REGISTERED</p></li>
+		}
+		@if (double.Parse(balance, NumberStyles.Currency) < 10)
+		{
+			<li class="balance"><span class="glyphicon glyphicon-exclamation-sign" title="Your funds are low!"></span>($@balance)</li>
+		}
+		else
+		{
+			<li class="balance" style="margin-top: 15px; margin-left: 10px;">($@balance)</li>
+		}
+		<li><a href="#">Hello @User.Identity.GetUserName()!</a></li>
+		<li>@Html.ActionLink("Deposit Money", "Index", "Deposit")</li>
+        <li><a href="javascript:document.getElementById('logoutForm').submit()">Logout</a></li>
+    </ul>
+    }
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li>@Html.ActionLink("Register", "Index", "Register")</li>
+		<li>@Html.ActionLink("Log in", "Login", "Account")</li>
+    </ul>
+}
+
+<style>
+
+	.balance{
+		color: darkorange; 
+	}
+
+	.vip{
+		font-family: monospace;
+		color: yellow; font-weight: bolder; font-size: large;
+		margin-top: 14px;
+	}
+
+	.registered{
+		font-family: monospace;
+		color: cyan; font-weight: bolder; font-size: large;
+		margin-top: 15px;
+		letter-spacing: 1px;
+	}
+</style>

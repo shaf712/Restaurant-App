@@ -1,0 +1,188 @@
+﻿
+@{
+	ViewBag.Title = "My Menu";
+}
+
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+	@Scripts.Render("~/Content/js/my_menu_bundle")
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.min.js"></script>
+	<script src="~/Scripts/kendo.all.min.js"></script>
+	<link rel="stylesheet" href="~/Content/kendo/kendo.common.min.css" />
+	<link rel="stylesheet" href="~/Content/kendo/kendo.default.min.css" />
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css”>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" />
+	<link rel="stylesheet" href="~/Content/star-rating.css" />
+</head>
+<body>
+	@{ 
+		var ID = User.Identity.GetUserID();
+		var isVVIP = User.Identity.GetVVIPStatus(); 
+	}
+	<div class="modal fade" id="myModal" role="dialog" data-keyboard="false" data-backdrop="static" data-bind="with: CurrentItem">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content" onfocus="parent_disable();">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Write a Review</h4>
+				</div>
+				<div class="modal-body">
+					<p data-bind="text: 'Food Name: ' +  Name()"></p>
+					<p data-bind="text: 'Prepared By: Chef ' +  PreparedBy()"></p>
+                    <p data-bind="text: 'Delivered By: ' +  DeliveredBy()"></p>
+					<h3 style="font-weight: bold; margin-top: 50px;">Rate this Food Item</h3>
+					<select id="rate-select" class="form-control" style="width: 40%;">
+						<option id="0">Select</option>
+						<option id="1">1 - Poor Quality</option>
+						<option id="2">2 - Below Average</option>
+						<option id="3">3 - Satisfactory</option>
+						<option id="4">4 - Good</option>
+						<option id="5">5 - Excellent</option>
+					</select>
+                    <h3 style="font-weight: bold; margin-top: 30px;">Rate the Delivery</h3>
+                    <select id="delivery-rate-select" class="form-control" style="width: 40%;">
+                        <option id="0">Select</option>
+                        <option id="1">1 - Poor Quality</option>
+                        <option id="2">2 - Below Average</option>
+                        <option id="3">3 - Satisfactory</option>
+                        <option id="4">4 - Good</option>
+                        <option id="5">5 - Excellent</option>
+                    </select>
+					<h3 style="font-weight: bold; margin-top: 50px;">Comments Section</h3>
+					<div>
+						<p>Please identify the type of comment you wish to submit:</p>
+						<label class="radio-inline" style="color: green; font-weight: bold;">
+							<input type="radio" id="compliment-radio" name="optradio" value="Compliment"> Compliment
+							<i class="fa fa-smile-o"></i>
+						</label>
+						<label class="radio-inline" style="color: red; font-weight: bold;">
+							<input type="radio" id="complaint-radio" name="optradio" value="Complaint"> Complaint
+							<i class="fa fa-frown-o"></i>
+						</label>
+					</div>
+					<br /><br />
+					<p>Enter your comments:</p>
+					<textarea id="comment-section" style="max-width: 535px; min-height: 100px; resize: none;" rows="4" cols="100" name="comment" form="usrform"></textarea>
+					<p id="comment-success" style="color: green;" class="hide">Review Successfully Submitted!</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="close-modal" data-bind="click: $root.Save" class="btn btn-default">Submit Review</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<h2 style="margin-bottom: 50px;">Recently Purchased</h2>
+	<div class="body-content">
+		<div class="grid-section">
+			<!-- ko if: Purchased().length > 0 -->
+			<div data-bind="foreach: Purchased">
+				<div class="menu-row">
+					<a data-bind="attr: {href: '/Item?id=' + ID() }" style="text-decoration: none!important;">
+						<img class="grid-image" data-bind="attr: { src: Image }" />
+						<h5 class="desc" data-bind="text: Name"></h5>
+						<h5 class="price" data-bind="text: '$' + Price().toFixed(2)"></h5>
+					</a>
+					<p style="padding-top: 40px; color:gray; font-style:italic;" data-bind="text: 'Your last order date for this was: ' + moment(OrderedDate()).format('MM-DD-YYYY')"></p>
+					<center><button type="button" id="modal-button" data-bind="click: $parent.GetItem" class="btn btn-primary button-offset"><span class="glyphicon glyphicon-pencil"></span> Write a Review</button></center>
+				</div>
+			</div>
+			<!-- /ko -->
+			<!-- ko if: Purchased().length == 0 -->
+			<h4>You have not made any recent purchases.</h4>
+			<!-- /ko -->
+		</div>
+	</div>
+</body>
+<script>
+	var menuViewModel = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model)); 
+	console.log(menuViewModel); 
+	var UserID = @ID;
+	var isVVIP = @isVVIP; 
+	console.log('isVVIP', isVVIP); 
+</script>
+<style>
+
+	.button-offset{
+		margin-top: 10px; 
+		margin-bottom: 200px; 
+	}
+	h2 {
+		font-weight: 900 !important;
+	}
+
+	.grid-section {
+		position: absolute;
+		max-width: 1170px;
+		margin-left: 100px;
+	}
+
+	.menu-title {
+		margin-top: 50px;
+		margin-bottom: 20px;
+		position: relative;
+		/*margin-bottom: 50px;
+		border-bottom: 3px solid #000000;
+		line-height:0.1em;*/
+	}
+
+		.menu-title span {
+			background: #fff;
+			padding: 0 10px;
+		}
+
+	.menu-row {
+		border-radius: 25px;
+		border: 2px solid #73AD21;
+		margin-left: 0px !important;
+		width: 400px;
+		height: 425px;
+		position: relative;
+		display: inline-block;
+		margin-right: 100px;
+		margin-bottom: 20px;
+	}
+
+	.grid-image {
+		margin-top: 25px;
+		margin-left: 25px;
+		width: 350px;
+		height: 300px;
+	}
+
+	.desc {
+		font-weight: bold;
+		text-align: center;
+		color: black;
+	}
+
+	.price {
+		font-weight: bold;
+		text-align: center;
+		color: red;
+	}
+
+	.menu-rating {
+		width: 180px !important;
+		height: 20px !important;
+	}
+
+	.rating-input {
+		color: red;
+	}
+
+#colorstar { color: #ee8b2d;}
+.badForm {color: #FF0000;}
+.goodForm {color: #00FF00;}
+.evaluation { margin-left:30px;} 
+
+
+</style>

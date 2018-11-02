@@ -1,0 +1,56 @@
+﻿@{
+    Layout = null;
+	ViewBag.Title = "Menu"; 
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+	@Styles.Render("~/Content/css/admin_bundle")
+    <link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css”>
+	@Scripts.Render("~/Content/js/admin_chef_bundle")	
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div id="menu"></div>
+	<script id="priceTemplate" type="text/x-kendo-tmpl">
+		<input class="numeric" type="number" value="#= Price #" step="1" />
+	</script>
+</body>
+</html>
+
+<script type="text/javascript">
+    var menu = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model));
+
+    $("#logout-button").click(function(){
+        console.log('logging out'); 
+    })
+</script>
+
+
+<style>
+	.k-edit-label{
+		width: 20% !important; 
+		text-align: left; 
+	}
+	.k-edit-field{
+		width: 70% !important; 
+	}
+
+	.k-content, .k-grid table, .k-grid-toolbar, .k-edit-field, .k-edit-label {
+		font-family: Arial!important; 
+	}
+
+	.k-input[name=Name]{
+		width: 100%; 
+	}
+
+	.k-grid tbody .k-button{
+		text-align: center; 
+		min-width: 200px; 
+	}
+
+</style>

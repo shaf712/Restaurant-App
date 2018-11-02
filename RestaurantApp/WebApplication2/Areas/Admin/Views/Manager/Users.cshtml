@@ -1,0 +1,67 @@
+﻿@{
+	Layout = null;
+	ViewBag.Title = "Customer Management";
+
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>User Management</title>
+	@Styles.Render("~/Content/css/admin_bundle")
+	@Scripts.Render("~/Content/js/admin_manager_user_bundle")
+	@Styles.Render("~/Content/css")
+	@Scripts.Render("~/bundles/modernizr")
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+</head>
+<body>
+	<h1>User Management</h1>
+	<div id="UserGrid"></div>
+</body>
+</html>
+<script type="text/javascript">
+	var users = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model));
+	var list = new Array(); 
+	for(i = 0; i < users.length; i++)
+	{
+		if(!users[i].isSuspended)
+		{
+			list.push(users[i]); 
+		}
+	}
+	console.log(list); 
+</script>
+<style>
+	.k-grid-PromotetoVIP{
+		margin-left: 42px!important;
+		color: white;
+		background-color: goldenrod;
+	}
+
+	.k-grid-IssueWarning{
+		margin-left: 42px!important;
+		color: white;
+		background-color: orangered;
+	}
+	.k-grid-VerifyUser{
+		margin-left: 42px!important;
+		color: white;
+		background-color: forestgreen;
+	}
+	
+	.k-grid-delete {
+		color: white; 
+		background-color: darkred;
+	}
+
+	body {
+		padding-top: 0px !important;
+	}
+
+	.k-content, .k-grid table, .k-grid-toolbar, .k-edit-field, .k-edit-label {
+		font-family: Arial !important;
+	}
+
+</style>

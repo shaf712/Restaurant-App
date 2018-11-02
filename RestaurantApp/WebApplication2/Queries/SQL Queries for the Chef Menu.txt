@@ -1,0 +1,222 @@
+//Update 4/29/2017 
+
+delimiter // 
+create procedure AddUser
+(	
+	Username nvarchar(100), 
+    Password nvarchar(100), 
+	Deposit double 
+)
+begin 
+		insert into Users (username, password, balance, warning_count, is_VIP, is_verified) values (Username, Password, Deposit, 0, 0, 1);
+end //
+delimiter ; 
+
+
+create table Orders(
+ID int not null auto_increment primary key, 
+UserID int, 	
+ItemID int, 
+Address nvarchar(500), 
+Cost double, 
+Quantity int, 
+Timestamp datetime
+)
+
+delimiter // 
+create procedure InsertOrder
+(	
+	UserID int,
+    ItemID int, 
+    Address nvarchar(500), 
+    Cost double, 
+    Quantity int
+)
+begin 
+	insert into orders (UserID, ItemID, Address, Cost, Quantity, Timestamp) values (UserID, ItemID, Address, Cost, Quantity, NOW());
+end //
+delimiter ; 
+
+
+
+delimiter // 
+create procedure UserDepositMoney
+(	
+	UserID int,
+	Deposit double 
+)
+begin 
+	update users set balance = balance + Deposit where ID = UserID; 
+end //
+delimiter ; 
+
+
+
+//Please add the additional fields to the Menu table in the Database (ChefID, Price): 
+https://ibb.co/eRK0WQ
+
+Then insert some values for ChefID and Price by using an insert statement to cover up the null columns. 
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CreateFoodItem`(
+	TypeID int, 
+    ChefID int, 
+    Name varchar(100), 
+    Description varchar(1000), 
+    Image varbinary(60000),
+    Price double 
+)
+begin 
+	insert into menu (TypeID, Name, ChefID, Description, Image, Price) values (TypeID, Name, ChefID, Description, Image, Price); 
+	select last_insert_id(); 
+end
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetChefs`()
+begin 
+	select * From chefs; 
+end
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUsers`()
+begin	
+	select * from users; 
+ end
+
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateFoodItem`(	
+	ID int, 
+	TypeID int, 
+    ChefID int, 
+    Price double, 
+    Name varchar(100), 
+    Description varchar(1000), 
+    Image varbinary (60000)
+)
+begin 
+	update menu m set m.TypeID = TypeID, m.ChefID = ChefID, m.Name = Name, m.Price = Price, m.Description = Description, m.Image = Image 
+    where m.ID = ID; 
+end
+
+
+create table Chefs 
+(
+	ID int not null auto_increment primary key, 
+    first_name nvarchar(100), 
+    last_name nvarchar(100), 
+    username nvarchar(100), 
+    password nvarchar(100), 
+    salary int, 
+approval_status int, 
+    demotion_count int
+)
+
+create table Users 
+(
+	ID int not null auto_increment primary key, 
+    username nvarchar(100), 
+    password nvarchar(100), 
+    balance int, 
+    warning_count int, 
+    is_VIP bool, 
+    is_verified bool 
+)
+
+
+
+insert into users (username, password, balance, warning_count, is_VIP, is_verified) values ('john_doe', 'helloworld', 500, 1, 0, 1)
+
+insert into users (username, password, balance, warning_count, is_VIP, is_verified) values ('bob123', 'bobross', 61200, 2, 1, 1)
+
+insert into users (username, password, balance, warning_count, is_VIP, is_verified) values ('56Joe', 'worldhello', 30, 0, 0, 0)
+
+
+
+
+
+//SQL Queries for the Chef Menu - OLD
+
+
+ create table Menu( 
+ ID int not null auto_increment, 
+ TypeID int, 
+ Name nvarchar(100), 
+ Description nvarchar(1000), 
+ Image varbinary(60000), 
+ primary key (ID) 
+ );
+ 
+
+ 
+ 
+ create table FoodTypes(
+ TypeID int not null auto_increment, 
+ Name nvarchar(50),
+ primary key (TypeID) 
+ );
+ 
+
+ 
+ insert into foodtypes (name) values ('Breakfast'); 
+ insert into foodtypes (name) values ('Lunch'); 
+ insert into foodtypes (name) values ('Dinner'); 
+ 
+
+ delimiter // 
+ create procedure GetMenu() 
+ begin 
+	select ID, m.TypeID, m.Name, f.Name as TypeName, Description, Image From Menu m 
+	join FoodTypes f
+	on f.TypeID = m.TypeID
+	order by ID desc; 
+ end // 
+ delimiter ; 
+
+
+
+delimiter // 
+create procedure CreateFoodItem
+(
+	TypeID int, 
+    Name varchar(100), 
+    Description varchar(1000), 
+    Image varbinary(60000)
+)
+begin 
+	insert into menu (TypeID, Name, Description, Image) values (TypeID, Name, Description, Image); 
+	select last_insert_id(); 
+end // 
+delimiter ; 
+
+
+select * From menu; 
+
+
+delimiter // 
+create procedure UpdateFoodItem
+(	
+	ID int, 
+	TypeID int, 
+    Name varchar(100), 
+    Description varchar(1000), 
+    Image varbinary (60000)
+)
+begin 
+	update menu m set m.TypeID = TypeID, m.Name = Name, m.Description = Description, m.Image = Image 
+    where m.ID = ID; 
+end //
+delimiter ; 
+
+
+delimiter // 
+create procedure DeleteFoodItem(
+	IN item_id int
+)
+begin 
+	delete from menu where ID = item_id; 
+end //
+delimiter ; 
+
+
+    
+
+
+
+

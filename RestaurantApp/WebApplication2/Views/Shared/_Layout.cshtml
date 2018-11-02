@@ -1,0 +1,86 @@
+﻿@using WebApplication2.Areas.Admin.Models
+@using System.Globalization 
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+	
+</head>
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Big Bytes", "Index", "Home", new { area = "" }, new { @class = "navbar-brand logo" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Full Menu", "Menu", "Home")</li>
+					@if (Request.IsAuthenticated)
+					{
+						var UserID = User.Identity.GetUserID();
+						<li>@Html.ActionLink("My Menu", "MyMenu", "Home", new { @ID = UserID }, null)</li>
+						<li>@Html.ActionLink("My Shopping Cart", "Index", "Cart")</li>
+						if (Session["cart"] != null)
+						{
+							var quantity = 0;
+							double total = 0;
+							var balance = User.Identity.GetBalance();
+							foreach (Food food in (List<Food>)Session["cart"])
+							{
+								quantity += food.Quantity;
+								total += (Convert.ToDouble(food.Quantity) * food.Price);
+							}
+							if (double.Parse(balance, NumberStyles.Currency) < total)
+							{
+								<li class="glyphicon glyphicon-exclamation-sign" style="margin-top: 15px; color: orangered!important; margin-right: 5px;" title="You don't have enough money deposited for this order!"></li>
+							}
+							<li><span class="badge alert-balloon">@quantity</span></li>
+						}
+
+					}
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+    </div>
+
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+<style>
+
+	.alert-balloon{
+		margin-top: 15px; background-color: orangered!important;
+	}
+
+	.navbar-inverse{
+		background-color: #000000!important; 
+	}
+	@@font-face{
+		font-family: BlockFont; 
+		src: url(/fonts/FFFFORWA.TTF)
+	}
+
+
+	.logo{
+		color: white!important; 
+		font-family: BlockFont; 
+		font-size: x-large; 
+	}
+</style>

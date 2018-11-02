@@ -1,0 +1,138 @@
+﻿@{ 
+	ViewBag.Title = "Register";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+	@Scripts.Render("~/bundles/jquery")
+	@Scripts.Render("~/bundles/bootstrap")
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css”>
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css”>
+
+</head>
+<body>
+    <div>
+		<button type="button" id="modal-button" class="btn btn-info btn-lg hidden" data-toggle="modal" data-target="#myModal">Open Modal</button>
+		<div class="modal fade" id="myModal" role="dialog" data-keyboard="false" data-backdrop="static">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Thank you for registering!</h4>
+					</div>
+					<div class="modal-body">
+						<p>Please wait until a manager approves your registration within 2-3 business days.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" id="close-modal" class="btn btn-default" data-dismiss="modal">Go back to homepage</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<h1 style="margin-bottom: 50px;">Register</h1>
+		<div>
+			<p id="error-msg-password" style="color: red;" class="hidden">Please enter a password.</p>
+			<p id="error-msg" style="color: red;" class="hidden">This username is already taken. Please try another.</p>
+			<p id="success-msg" style="color: green;" class="hidden">This username is valid!</p>
+			<input type="email" style="margin-bottom: 10px; width: auto; float: left;" class="form-control" id="username" placeholder="Enter a username">
+			<button type="submit" id="validate" class="btn btn-default disabled">Validate</button>
+		</div>
+		<div style="position: absolute;">
+			<input type="password" style="width: auto; margin-top: 10px; margin-bottom: 20px;" class="form-control" id="password" placeholder="Enter a password">
+			<p style="color: red;">Enter initial deposit money (at least $25.00)</p>
+			<div class="input-group" style="margin-top: 10px;">
+				<span class="input-group-addon">$</span>
+				<input type="number" style="height: 35px;" id="deposit-amount" value="25" min="25" step="0.5" data-number-to-fixed="2" data-number-stepfactor="100" class="form-control currency" />
+				<span id="sign-up" style="margin-left: .5px;" class="btn btn-success disabled"><span class="glyphicon glyphicon-thumbs-up"></span> Sign me up </span>
+			</div>
+		</div>
+    </div>
+</body>
+</html>
+<script>
+	var is_valid = 0;
+	$("#password").keyup(function () {
+		$("#error-msg-password").addClass('hidden');
+	})
+	$("#username").keyup(function () {
+		if ($("#username").val().length > 0) {
+			$("#error-msg").addClass('hidden');
+			$("#success-msg").addClass('hidden');
+			$("#validate").removeClass('disabled');
+			$("#username").removeClass('error');
+			$("#sign-up").addClass('disabled');
+		}
+		else {
+			$("#error-msg").addClass('hidden');
+			$("#success-msg").addClass('hidden');
+			$("#validate").addClass('disabled');
+			$("#username").addClass('error');
+			$("#sign-up").addClass('disabled');
+
+		}
+	});
+
+	$("#validate").click(function () {
+		$.ajax({
+			url: '/Register/Validate',
+			type: 'POST',
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify({ 'Username': $("#username").val() }),
+			async: false,
+			success: function(result)
+			{
+				if(result == -1)
+				{
+					is_valid = 0; 
+					$("#username").addClass('error');
+					$("#error-msg").removeClass('hidden');
+					$("#success-msg").addClass('hidden');
+					$("#validate").addClass('disabled');
+				}
+				else {
+					is_valid = 1; 
+					$("#username").removeClass('error');
+					$("#error-msg").addClass('hidden');
+					$("#validate").addClass('disabled');
+					$("#success-msg").removeClass('hidden');
+					$("#sign-up").removeClass('disabled'); 
+				}
+			}
+		})
+	})
+
+	$("#sign-up").click(function () {
+		if(is_valid == 1 && $("#password").val().length > 0)
+		{
+			$("#error-msg-password").addClass('hidden');
+			$.ajax({
+				url: '/Register/Register',
+				type: 'POST',
+				contentType: "application/json; charset=utf-8",
+				data: JSON.stringify({ 'Username': $("#username").val(), 'Password': $("#password").val(), 'Deposit': $("#deposit-amount").val() }),
+				async: false,
+				success: function (result) {
+					$("#modal-button").click();
+				}
+			})
+			$("#close-modal").click(function () {
+				location.href = '/Home/Index';
+			})
+		}
+		else {
+			$("#error-msg-password").removeClass('hidden');
+			return; 
+		}
+	})
+
+</script>
+<style>
+	.error{
+		border-color: red; 
+	}
+</style>

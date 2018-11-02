@@ -1,0 +1,144 @@
+﻿
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Order Management</title>
+    @Styles.Render("~/Content/css/admin_bundle")
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/Content/js/admin_bundle")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+</head>
+<body>
+    <div>
+        <h1>Orders Management</h1>
+        <div id="ordersGrid"></div>
+    </div>
+</body>
+</html>
+<script>
+    var orders = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model));
+    console.log(orders); 
+
+
+    $(document).ready(function () {
+        $("#ordersGrid").kendoGrid({
+            dataSource: {
+                transport:
+                {
+                    read: function (options) {
+                        console.log(options);
+                        options.success(orders);
+                    },
+                    destroy: function (options) {
+                        console.log(options.data);
+                        $.ajax
+                        ({
+                            url: '/Delivery/DeleteOrder',
+                            type: "POST",
+                            data: { 'ID': options.data.ID },
+                            success: function (result) {
+                                options.success();
+                            }
+                        });
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "ID",
+                        fields:
+                        {
+                            Username: { type: "string" },
+                            Item: { type: "string" },
+                            ChefName: { type: "string" },
+                            Address: {type: "string"},
+                            Cost: {type: "double"},
+                            Quantity: {type: "double"},
+                            Timestamp: {type: "string"}
+                        }
+                    }
+                }
+            },
+
+            columns:
+            [
+                { field: "ID", title: "Order ID", template: function (dataItem) { return "<center>" + dataItem.ID + "</center>" } },
+                { field: "Username", title: "Username", template: function (dataItem) { return "<center>" + dataItem.Username + "</center>" } },
+                { field: "UserID", title: "User ID", template: function (dataItem) { return "<center>" + dataItem.UserID + "</center>" } },
+                { field: "Item", title: "Food", template: function (dataItem) { return "<center>" + dataItem.Item + "</center>"; } },
+                { field: "ChefName", title: "Chef Name", template: function (dataItem) { return "<center>" + dataItem.ChefName + "</center>" } },
+                { field: "Address", title: "Address", template: function (dataItem) { return "<center>" + dataItem.Address + "</center>" } },
+                { field: "Cost", title: "Cost", template: function (dataItem) { return "<center>" + dataItem.Cost + "</center>" } },
+                { field: "Quantity", title: "Quantity", template: function (dataItem) { return "<center>" + dataItem.Quantity + "</center>" } },
+                { field: "Timestamp", title: "Timestamp", template: function (dataItem) { return "<center>" + dataItem.Timestamp + "</center>" } },
+			    { command: { text: "Issue Warning", click: IssueWarning }, title: "Warn" },
+				{ command: ["destroy"], title: "Deliver Order" }, 
+
+
+            ],
+            messages:
+            {
+                commands: {
+                    destroy: "Order Delivered",
+                }
+            },
+            editable:
+            {
+                confirmation: "Order will be set to 'Delivered'",
+                confirmDelete: "Yes",
+                mode: "popup",
+                createAt: "top"
+            }, 
+
+        });
+
+        function IssueWarning(e){
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            if (dataItem.WarningCount >= 3)
+            {
+                alert("This user's warnings exceed 3. They will be suspended.");
+                return;
+            }
+            console.log(dataItem);
+            $.ajax({
+                url: '/Manager/IssueWarning',
+                type: "POST",
+                async: false,
+                data: { 'userID': dataItem.UserID },
+                success: function (result) {
+                    alert('A warning has been issued to this user.'); 
+                }
+            })
+        }
+
+    });
+
+
+</script>
+<style>
+    	body{
+	padding-top: 0px!important; 
+	}
+	.k-content, .k-grid table, .k-grid-toolbar, .k-edit-field, .k-edit-label {
+		font-family: Arial!important; 
+	}
+
+	.k-grid-Promote{
+		margin-left: 55px!important;
+		color: white;
+		background-color: green;
+	}
+
+	.k-grid-Demote{
+		margin-left: 55px!important;
+		color: white; 
+		background-color: orangered;
+	}
+
+	.k-grid-delete {
+		color: white; 
+		background-color: darkred;
+	}
+</style>

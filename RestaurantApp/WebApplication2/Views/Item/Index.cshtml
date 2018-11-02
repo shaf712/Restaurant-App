@@ -1,0 +1,107 @@
+﻿@{
+	ViewBag.Title = "Food Item";
+}
+
+
+<!DOCTYPE html>
+
+<head>
+	@Scripts.Render("~/Content/js/item_bundle")
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.min.js"></script>
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css”>
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css”>
+</head>
+<body>
+	@{ 
+		var ID = User.Identity.GetUserID(); 
+	}
+    <div class="item-section" data-bind="with: Item">
+		<p class="item-title" data-bind="text: Name"></p>
+		<img class="item-img" data-bind="attr: { src: Image }" />
+		<div class="item-details">
+			<p class="item-description" data-bind="html: Description"></p>
+			<div class="rating-container">
+				<p>Average Customer Rating:</p>
+				<input type="number" id="rating" class="rating" data-readonly="true" />
+			</div>
+			<div class="cart-details">
+				<p class="price" data-bind="text: '$' + Price().toFixed(2)"></p>
+				@if (Request.IsAuthenticated)
+				{
+				<center><input style="width: 140px!important; margin-bottom: 1px;" type="number" id="item-quantity" value="1" min="1" step="1" class="form-control" /></center>
+				<a id="add-to-cart" class="btn btn-info btn-lg shopping-cart">
+					<span class="glyphicon glyphicon-shopping-cart"></span>
+					Add to Cart
+				</a>
+				<p style="text-align: center;" class="text-success hide">Added to cart!</p>
+				}
+			</div>
+		</div>
+		<p style="font-style: italic; margin-left: 20px; font-size: large;" data-bind="text: 'Prepared By: ' +  PreparedBy()"></p>
+    </div>
+</body>
+
+<script>
+	var FoodItem = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model));
+	document.title =  FoodItem.Name + " | " + "BIG BYTES"; 
+	$(function(){
+		$("#add-to-cart").click(function(){
+			$.ajax({
+				url: 'Cart/Order', 
+				type: 'POST',
+				contentType: "application/json; charset=utf-8",
+				data: JSON.stringify({'ID': FoodItem.ID, 'Quantity': $("#item-quantity").val() }), 
+				async: false
+			});
+			$('.text-success').removeClass('hide'); 
+			setTimeout(function(){ location.reload(); }, 1000);
+		})
+	})
+</script>
+
+<style>
+
+	.cart-details{
+		margin-top: 50px; 
+	}
+
+	.price{
+		text-align: center; 
+		font-size: 15pt; 
+		color: red; 
+		font-weight: bold;	 
+	}
+
+	.item-details{
+		width: 50%; 
+		float: right; 
+	}
+
+	.shopping-cart{
+		margin-left: 210px; 
+	}
+
+	.rating-container{
+		margin-top: 100px; 
+		text-align: center; 
+		font-size: 25px; 
+	}
+	.item-description{
+		margin-top: 20px; 
+		font-size: 20pt; 
+	}
+
+	.item-img{
+		width: 500px; 
+		height: 500px; 
+		border-radius: 25px;
+		border: 2px solid #73AD21;
+	}
+	.item-section{
+		margin-top: 100px;
+
+	}
+	.item-title{
+		font-size: 60px; 
+	}
+</style>

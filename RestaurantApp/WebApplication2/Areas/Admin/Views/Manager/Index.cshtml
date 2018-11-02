@@ -1,0 +1,141 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    @Styles.Render("~/Content/css/admin_bundle")
+    @Scripts.Render("~/Content/js/admin_chef_bundle")
+</head>
+
+<body>
+    <div id="user_table"></div>
+</body>
+</html>
+
+<script type="text/javascript">
+    var users = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model));
+
+    $(document).ready(function () {
+        $("#user_table").kendoGrid({
+            dataSource: {
+                transport:
+                {
+                    read: function(options)
+                    {
+                        console.log(users); 
+                        options.success(users); 
+                    },
+                    create: function(options)
+                    {
+                        //options.data.TypeName = GetFoodTypeID($("#typeDDL").val()); 
+                        console.log(options.data); 
+                        var name = options.data.Name;
+                        var error = 0;
+                        var data = $("#user_table").data("kendoGrid").dataSource.data();
+                        for(item in data) {
+                            if(data[item].Name == name)
+                            {
+                                alert("Username already exists.");
+                                error = 1;
+                                break;
+                            }
+                        }
+                        if (error == 1) { return; }
+                        $.ajax
+                        ({
+                            url: '/Manager/Create',
+                            type: "POST",
+                            async: false,
+                            contentType: "application/json;",
+                            data: JSON.stringify(options.data),
+                            success: function(result)
+                            {
+                                options.data.ID = result; 
+                                users.unshift(options.data); 
+                                options.success(options.data); 
+                            }
+                        }); 
+                    },
+                    update: function(options)
+                    {
+                        //options.data.TypeName = GetFoodTypeID($("#typeDDL").val());
+                        console.log(options.data); 
+                        $.ajax
+                        ({
+                            url: '/Manager/Update',
+                            type: "POST",
+                            async: false,
+                            contentType: "application/json;",
+                            data: JSON.stringify(options.data),
+                            success: function (result) {
+                                options.success(options.data);
+                            }
+                        });
+                    },
+                    destroy: function(options)
+                    {
+                        console.log(options.data); 
+                        $.ajax
+                        ({
+                            url: '/Manager/Delete',
+                            type: "POST",
+                            data: { 'ID': options.data.ID },
+                            success: function (result) {
+                                options.success();
+                            }
+                        });
+                    }
+                }, 
+                schema: {
+                    model: {
+                        id: "ID",
+                        fields:
+                        {
+                            Username: { type: "string" },
+                            Password: { type: "string"},
+                            Permission: { type: "int" },
+
+                        }
+                    }
+                }
+            },
+
+            columns:
+            [
+                { field: "Username", title: "Username" },
+                { field: "Password", title: "User password" },
+                { field: "Permission", title: "Permission" },
+                { command: ["edit", "destroy"], title: "Edit" }
+            ],
+            messages: 
+            {
+                commands: { 
+                    update: "Save Changes",
+                    create: "Add User"
+                }
+            }, 
+            toolbar: ["create"],
+            filterable: true, 
+            editable: 
+            {
+                confirmation: true, 
+                confirmDelete: "Yes", 
+                mode: "popup", 
+                createAt: "top"
+            }
+        });
+
+    });
+
+
+
+
+
+
+</script>

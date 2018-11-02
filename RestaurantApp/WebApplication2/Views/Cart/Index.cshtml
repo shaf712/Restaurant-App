@@ -1,0 +1,153 @@
+﻿@{
+	ViewBag.Title = "Shopping Cart";
+}
+@using WebApplication2.Areas.Admin.Models
+@using System.Globalization 
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Shopping Cart</title>
+		@Scripts.Render("~/bundles/jquery")
+		@Scripts.Render("~/bundles/bootstrap")
+		<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css”>
+		<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css”>
+</head>
+<body>
+	<button type="button" id="modal-button" class="btn btn-info btn-lg hidden" data-toggle="modal" data-target="#myModal">Open Modal</button>
+	<div class="modal fade" id="myModal" role="dialog" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content" onfocus="parent_disable();">
+				<div class="modal-header">
+					<h4 class="modal-title">Thank you for your order!</h4>
+				</div>
+				<div class="modal-body">
+					<p>Your order was successfully placed.</p>
+					<center><img style="width: 200px;" src="https://openclipart.org/download/257462/Checkmark.svg" /></center>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="close-modal" class="btn btn-default" data-dismiss="modal">Go back to homepage</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	@{ 
+		double total = 0;
+		var isVVIP = User.Identity.GetVVIPStatus();
+	}
+    <div>
+		<div class="cart-title">
+			<p style="font-size: 30pt;">
+				My Food Items
+				<span class="glyphicon glyphicon-shopping-cart"></span>   
+			</p>
+		</div>
+		<div class="shopping-cart">
+		@if (Session["cart"] != null)
+		{
+			foreach (Food food in (List<Food>)Session["cart"])
+			{
+				var price = food.Price * food.Quantity;
+				total += price; 
+					<p class="food-item">@food.Quantity @food.Name <span class="price">(@price.ToString("C2"))</span></p>
+			}
+			<br /><br />
+			if(isVVIP == "1")
+			{
+				total *= .9; 
+				<center><h4 style="color: darkorange;">(10% Discount has been applied)</h4></center>
+			}
+			<center><h2 class="price">Total: <span class="total">@total.ToString("C2")</span></h2></center>
+		}
+		else
+		{
+			<p class="food-item" style="font-size: large;">Nothing in your shopping cart!</p>
+		}
+	</div>
+</div>
+	<br /><br />
+	<button type="button" onclick="location.href='@Url.Action("Index", "Home")'; return false;" class="btn btn-warning center-button" style="width: 200px; margin-bottom: 3px;"><span class="glyphicon glyphicon-arrow-left"></span> Continue Shopping</button>
+	@if (Session["cart"] != null)
+	{
+		<button type="button" onclick="location.href='@Url.Action("Clear", "Cart")'; return false;" class="btn btn-danger center-button" style="margin-bottom: 20px; width: 200px;"><span class="glyphicon glyphicon-remove"></span> Clear Shopping Cart</button>
+		if(double.Parse(User.Identity.GetBalance(), NumberStyles.Currency) < total)
+		{
+		<button type="button" id="insufficient-funds" onclick="location.href='@Url.Action("Index", "Deposit")'; return false;" class="btn btn-danger center-button" title="Please deposit more money to continue with this transaction!"><span class="glyphicon glyphicon-usd"></span>Insufficient Funds</button>
+			}
+			else
+			{
+			var ID = User.Identity.GetUserID();
+			<center><input type="email" style="margin-bottom: 10px;" class="form-control" id="address-box" placeholder="Please enter the delivery address."></center>
+			<button type="button" id="order-now" class="btn btn-success btn-lg center-button order-now"><span class="glyphicon glyphicon-thumbs-up"></span> Order Now</button>
+			<script type="text/javascript">
+				$(function(){
+					$("#order-now").click(function(){
+			if($("#address-box").val() == "")
+						{
+				alert("Please enter a delivery address.");
+				return;
+			}
+						$.ajax({
+				url: '/Cart/Checkout',
+							type: 'POST',
+							contentType: "application/json; charset=utf-8",
+							data: JSON.stringify({'ID': @ID, 'isVVIP': @isVVIP, 'Address': $("#address-box").val() }), 
+							async: false ,
+							success: function(result){
+					console.log(result);
+					if(result == 1)
+					{
+									$("#modal-button").click();
+					}
+				}
+			});
+		});
+					$("#close-modal").click(function(){
+			location.href='/Home/Index';
+		})
+				}); 
+			</script>
+		}
+	}
+</body>
+</html>
+
+<style>
+
+	.gray-out{
+
+	}
+
+	.total{
+		color: black!important; 
+	}
+
+	.price{
+		color: red; 
+		font-weight: bold; 
+	}
+	.center-button{
+		margin-top: 50px;
+		display: block;
+		margin: 0 auto; 
+	}
+
+	.cart-title{
+		text-align: center; 
+		margin-bottom: 50px; 
+	}
+	.shopping-cart{
+		list-style: none; 
+	}
+
+	.food-item{
+		text-align: center; 
+		font-size: large; 
+	}
+</style>

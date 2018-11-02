@@ -1,0 +1,64 @@
+﻿
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css”>
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css”>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" />
+</head>
+<body>
+	@{ 
+		var Balance = User.Identity.GetBalance();
+		var ID = User.Identity.GetUserID();
+	}
+    <div>
+		<h1>Deposit Money</h1>
+		<h4 class="text-success hidden"><span class="glyphicon glyphicon-ok"></span> Your deposit was successful!</h4>
+		<h3 style="font-weight: bold; margin-top: 100px;">Current Balance: @Balance</h3>
+		<h4>Enter the amount you wish to deposit:</h4>
+		<div class="input-group">
+			<span class="input-group-addon">$</span>
+			<input type="number" id="deposit-amount" value="0" min="0" step="0.5" data-number-to-fixed="2" data-number-stepfactor="100" class="form-control currency" />
+		</div>
+		<a href="#" id="deposit-money" class="btn btn-success disabled" style="margin-left: 175px; margin-top: 1px;"><span class="glyphicon glyphicon-ok"></span> Deposit Money</a>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	$(function () {
+		$("#deposit-amount").change(function () {
+			if($("#deposit-amount").val() > 0)
+			{
+				$("#deposit-money").removeClass('disabled'); 
+			}
+			else {
+				$("#deposit-money").addClass('disabled');
+			}
+		})
+
+		$("#deposit-money").click(function () {
+			var deposit = $("#deposit-amount").val();
+			$.ajax({
+				url: '/Deposit/Deposit',
+				type: 'POST',
+				contentType: "application/json; charset=utf-8",
+				data: JSON.stringify({'ID': @ID, 'Deposit': deposit }), 
+				success: function(result){
+					if(result == 1)
+					{
+						$("#deposit-money").addClass('disabled'); 
+						$('.text-success').removeClass('hidden'); 
+						setTimeout(function(){ location.reload(); }, 1200);
+					}
+				}
+			})
+		}); 
+	})
+</script>

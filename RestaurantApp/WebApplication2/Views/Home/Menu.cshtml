@@ -1,0 +1,119 @@
+﻿@{
+	ViewBag.Title = "Menu";
+}
+
+@using Microsoft.AspNet.Identity
+@using WebApplication2.Extensions
+
+<head>
+	@Scripts.Render("~/Content/js/menu_bundle")
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.min.js"></script>
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css”>
+	<link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css”>
+</head>
+<body>
+	<div class="body-content">
+		<div class="grid-section">
+			<h2 class="menu-title">Breakfast</h2>
+			<div data-bind="foreach: Breakfast">
+				<a data-bind="attr: {href: '/Item?id=' + ID() }">
+					<div class="row">
+						<img class="grid-image" data-bind="attr: { src: Image }" />
+						<h5 class="desc" data-bind="text: Name"></h5>
+						<h5 class="price" data-bind="text: '$' + Price().toFixed(2)"></h5>
+					</div>
+				</a>
+			</div>
+			<h2 class="menu-title">Lunch</h2>
+			<div data-bind="foreach: Lunch">
+				<a data-bind="attr: {href: '/Item?id=' + ID() }">
+					<div class="row">
+						<img class="grid-image" data-bind="attr: { src: Image }" />
+						<h5 class="desc" data-bind="text: Name"></h5>
+						<h5 class="price" data-bind="text: '$' + Price().toFixed(2)"></h5>
+					</div>
+				</a>
+			</div>
+			<h2 class="menu-title">Dinner</h2>
+			<div data-bind="foreach: Dinner">
+				<a data-bind="attr: {href: '/Item?id=' + ID() }">
+					<div class="row">
+						<img class="grid-image" data-bind="attr: { src: Image }" />
+						<h5 class="desc" data-bind="text: Name"></h5>
+						<h5 class="price" data-bind="text: '$' + Price().toFixed(2)"></h5>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+    var Breakfast = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model.Breakfast));
+	var Lunch = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model.Lunch));
+	var Dinner = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model.Dinner));
+</script>
+<style>
+	h2 {
+		font-weight: 900 !important;
+	}
+
+	.grid-section {
+		position: absolute;
+		max-width: 1170px;
+		margin-left: 100px;
+	}
+
+	.menu-title {
+		margin-top: 50px;
+		margin-bottom: 20px;
+		position: relative;
+		/*margin-bottom: 50px;
+		border-bottom: 3px solid #000000;
+		line-height:0.1em;*/
+	}
+
+		.menu-title span {
+			background: #fff;
+			padding: 0 10px;
+		}
+
+	.row {
+		border-radius: 25px;
+		border: 2px solid #73AD21;
+		margin-left: 0px !important;
+		width: 400px;
+		height: 425px;
+		position: relative;
+		display: inline-block;
+		margin-right: 100px;
+		margin-bottom: 20px;
+	}
+
+	.grid-image {
+		margin-top: 25px;
+		margin-left: 25px;
+		width: 350px;
+		height: 300px;
+	}
+
+	.desc {
+		font-weight: bold;
+		text-align: center;
+		color: black;
+	}
+
+	.price {
+		font-weight: bold;
+		text-align: center;
+		color: red;
+	}
+
+	.menu-rating {
+		width: 180px !important;
+		height: 20px !important;
+	}
+
+	.rating-input {
+		color: red;
+	}
+</style>

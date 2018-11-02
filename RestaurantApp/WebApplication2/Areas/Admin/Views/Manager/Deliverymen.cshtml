@@ -1,0 +1,53 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Deliveryman Management";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Deliverymen Management</title>
+    @Styles.Render("~/Content/css/admin_bundle")
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/Content/js/admin_manager_deliveryman_bundle")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+</head>
+<body>
+    <h1>Deliveryman Management</h1>
+    <div id="deliverymanGrid"></div>
+</body>
+
+</html>
+<script type="text/javascript">
+	var chefs = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(this.Model));
+	console.log(chefs);
+</script>
+<style>
+    body {
+        padding-top: 0px !important;
+    }
+
+    .k-content, .k-grid table, .k-grid-toolbar, .k-edit-field, .k-edit-label {
+        font-family: Arial !important;
+    }
+
+    .k-grid-Promote {
+        margin-left: 55px !important;
+        color: white;
+        background-color: green;
+    }
+
+    .k-grid-Demote {
+        margin-left: 55px !important;
+        color: white;
+        background-color: orangered;
+    }
+
+    .k-grid-delete {
+        color: white;
+        background-color: darkred;
+    }
+</style>
